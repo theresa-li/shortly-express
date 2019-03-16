@@ -17,15 +17,58 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 
-app.get('/', 
-(req, res) => {
-  res.render('index');
+app.get('/login', 
+(req, res) => {  
+  res.render(__dirname + '/views/login.ejs');
 });
+
+app.get('/signup', 
+(req, res) => {
+  res.render(__dirname + '/views/signup.ejs');
+});
+
+
 
 app.get('/create', 
 (req, res) => {
   res.render('index');
 });
+
+app.post('/signup',
+(req, res) => {
+
+  
+  models.Users.get({username : req.body.username}).then(results => {
+    if(results === undefined) {
+      res.setHeader('Set-Cookie',  ['type=ninja', 'language=javascript']);
+      var userObj = models.Users.create(req.body);
+      res.render(__dirname + '/views/index.ejs');
+    } else {
+      res.end('nice try dude already have an account');
+    }
+  });
+  
+}
+);
+
+app.post('/login' , 
+(req, res) => {
+models.Users.get({username : req.body.username}).then(results => {
+  //compare the attempted which will be req.body.password
+  // if true sign in if false tell to fuck off
+  //results
+  console.log('password: ', req.body.password);
+  if(utils.compareHash(req.body.password, results.password, results.salt)) {
+    console.log('right');
+    res.render(__dirname + '/views/index.ejs');
+  } else {
+    console.log('wrong :(');
+    res.end('password or username incorrect')
+  }
+
+});
+}
+);
 
 app.get('/links', 
 (req, res, next) => {
