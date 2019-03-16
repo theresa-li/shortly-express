@@ -40,11 +40,14 @@ app.post('/signup',
   
   models.Users.get({username : req.body.username}).then(results => {
     if(results === undefined) {
-      res.setHeader('Set-Cookie',  ['type=ninja', 'language=javascript']);
+      //res.setHeader('Set-Cookie',  ['type=ninja', 'language=javascript']);
       var userObj = models.Users.create(req.body);
+      res.setHeader('Location', '/');
       res.render(__dirname + '/views/index.ejs');
     } else {
-      res.end('nice try dude already have an account');
+      res.setHeader('Location', '/signup');
+      
+      res.render(__dirname + '/views/signup.ejs');
     }
   });
   
@@ -57,15 +60,20 @@ models.Users.get({username : req.body.username}).then(results => {
   //compare the attempted which will be req.body.password
   // if true sign in if false tell to fuck off
   //results
-  console.log('password: ', req.body.password);
+  if(results !== undefined) {
   if(utils.compareHash(req.body.password, results.password, results.salt)) {
-    console.log('right');
+    res.setHeader('Location', '/');
+    //console.log('right');
     res.render(__dirname + '/views/index.ejs');
   } else {
-    console.log('wrong :(');
-    res.end('password or username incorrect')
+    res.setHeader('Location', '/login');
+    //console.log('wrong :(');
+    res.render(__dirname + '/views/login.ejs')
   }
-
+} else {
+  res.setHeader('Location', '/login');
+  res.render(__dirname + '/views/login.ejs');
+}
 });
 }
 );
